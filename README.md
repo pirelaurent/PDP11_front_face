@@ -58,8 +58,3 @@ PDP-11 was my first computer ( used in intensive care units for monitoring prema
 The initial boot was loaded in binary by hand using the switches you can see.   
 Then a perforated paper tape was read to load the real operating system, RT11.   
 
-### Missing labels 
-Except adress and data, i don't remember labels on top of other blocks.  
-If you know, tell me !  
-
-:) 

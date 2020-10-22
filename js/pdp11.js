@@ -143,11 +143,27 @@ class PDP {
 
         push();
         translate(200, 47, 0);
-        textSize(6);
+        textSize(5);
         textAlign(CENTER);
         stroke(this.textColor);
         fill(this.textColor);
-        text('address', 0, 0);
+        text('ADDRESS REGISTER', 0, 0);
+
+        // add text 
+        textSize(5);
+        translate(135,0,0);
+        text('RUN', 0, 0);
+        translate(30,0,0);
+        text('BUS', 0, 0);
+        translate(27,0,0);
+        text('FETCH', 0, 0);
+        translate(18,0,0);
+        text('EXEC', 0, 0);
+
+
+
+
+
         pop();
     }
 
@@ -203,7 +219,15 @@ class PDP {
         textSize(6);
         textAlign(CENTER);
         fill(this.textColor);
-        text('data', 0, 0);
+        text('DATA', 0, 0);
+         // add text 
+         textSize(5);
+         translate(134,0,0);
+         text('SOURCE', 0, 0);
+         translate(31,0,0);
+         text('DESTINATION', 0, 0);
+         translate(35,0,0);
+         text('ADDRESS', 0, 0);
         pop();
     }
 
@@ -296,14 +320,18 @@ class PDP {
     }
 
     // ------- instruction bar to control PDP 
+    // LOAD    EXAM    CONT  ENABLE    S-INST          START    DEP
+    // ADDR                  HALT      S-CYCLE 
 
     controlBar() {
+        var tSize = 4;
         push();
-        textSize(4);
+        textSize(tSize);
         var labels = ['LOAD', 'EXAM', 'CONT', 'HALT', 'S-INST', 'START'];
         translate(304, 130, 0);
         stroke(this.traitColor);
         rect(0, 0, 90, 33);
+
         for (var i = 0; i < 6; i++) {
             var current = this.magenta;
             if (i % 2 == 1) current = this.brightRose;
@@ -311,9 +339,28 @@ class PDP {
             rect(0, 0, 45 / 3, 13);
             // text inside 
             textAlign(LEFT, TOP);
-            fill(this.textColor);
+            fill(color(170));
             stroke(this.textColor);
-            text(labels[i], 1, 5);
+            if (i==0){
+                text('LOAD',1,2);
+                text('ADDR',1,8);
+                line(1,7,11,7);
+            };
+            if (i==3){
+                text('ENABLE',1,2);
+                text(' HALT',1,8);
+                line(1,7,11,7);   
+            };
+            if (i==4){
+                text('S-INST',1,2);
+                textSize(tSize - 0.7);
+                text('S-CYCLE',1,8);
+                textSize(tSize);
+                line(1,7,11,7);   
+            };
+            if ((i==1)||(i==2)||i==5||i==6)text(labels[i], 1, 5); 
+
+            
 
             // switches under instruction . All up but 5th
 
@@ -339,6 +386,8 @@ class PDP {
         this.switch_up(this.magenta);
         pop();
     }
+
+// faire un drawLabelBox avec 1 ou 2 lignes selon 
 
 
     //----------- draw a swith in down position 
