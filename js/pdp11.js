@@ -23,24 +23,27 @@ class PDP {
         this.magenta = color('rgb(110,35,76)');
         this.traitColor = color('grey');
         this.textColor = color(150);
+        this.addr18Leds = [];
+        this.data16Leds = [];
         this.createLeds();
+
     }
 
     draw() {
         fill(this.background);
         stroke(50);
         // set a 3D box 
-        
-            push();
-            translate(this.width / 2, this.height / 2, -this.pdp_d / 2);
-            box(this.width, this.height, this.pdp_d);
-            pop();
-        
+
+        push();
+        translate(this.width / 2, this.height / 2, -this.pdp_d / 2);
+        box(this.width, this.height, this.pdp_d);
+        pop();
+
         // border 
         rect(0, 0, this.width, this.height);
 
         // text font and default if not loaded
-        if( this.helvetica) textFont(this.helvetica);
+        if (this.helvetica) textFont(this.helvetica);
         this.title_bar();
         this.adress_bar();
         this.dataBar();
@@ -107,33 +110,44 @@ class PDP {
         for (var hb = 0; hb < 6; hb++) {
             fill(this.magenta);
             if (hb % 2 == 1) fill(this.brightRose);
+
+            push();
+            for (var i = 0; i < 3; i++) {
+                var aLed = this.addr18Leds[hb * 3 + i];
+                aLed.drawInContext();
+                translate(10, 0, 0);
+            }
+            pop();
             rect(0, 0, 40, 5);
-            this.drawLeds(3);
             translate(40, 0, 0);
+            this.randomizeLeds(this.addr18Leds);
         }
 
         //2 blocks of 2 leds on right avec 2 led chacun
 
         translate(20, 0, 0);
-        this.drawLeds(1, this.offLed);
+        this.offLed.drawInContext();
         translate(10, 0, 0);
-        this.drawLeds(1, this.onLed);
+        this.onLed.drawInContext();
         translate(-10, 0, 0);
         fill(this.magenta);
         rect(0, 0, 30, 5);
         translate(30, 0, 0);
-        this.drawLeds(2, this.onLed);
+        this.onLed.drawInContext();
+        translate(10, 0, 0);
+        this.addr18Leds[0].drawInContext();
+        translate(-10, 0, 0);
         fill(this.brightRose);
         rect(0, 0, 30, 5);
 
-        // more on right a block splited 
+        // more on right a block fetch/exec 
 
         translate(35, 0, 0);
-        this.drawLeds(1);
+        random(this.leds).drawInContext();
         fill(this.magenta);
         rect(0, 0, 15, 5);
         translate(10, 0, 0);
-        this.drawLeds(1, this.onLed);
+        this.onLed.drawInContext();
         translate(5, 0, 0);
         fill(this.brightRose);
         rect(0, 0, 15, 5);
@@ -151,13 +165,13 @@ class PDP {
 
         // add text 
         textSize(5);
-        translate(135,0,0);
+        translate(135, 0, 0);
         text('RUN', 0, 0);
-        translate(30,0,0);
+        translate(30, 0, 0);
         text('BUS', 0, 0);
-        translate(27,0,0);
+        translate(27, 0, 0);
         text('FETCH', 0, 0);
-        translate(18,0,0);
+        translate(18, 0, 0);
         text('EXEC', 0, 0);
 
 
@@ -174,29 +188,44 @@ class PDP {
         stroke(this.traitColor);
         // one alone 
         translate(80, 90, 0);
-        this.drawLeds(1);
+        this.data16Leds[0].drawInContext();
         fill(this.magenta);
         rect(0, 0, 20, 5);
 
         // serie of 5 groups of 3 leds 
 
         translate(20, 0, 0);
-        for (var hb = 1; hb <= 5; hb++) {
+        for (var hb = 0; hb < 5; hb++) {
             fill(this.magenta);
             if (hb % 2 == 1) fill(this.brightRose);
-            this.drawLeds(3);
+
+            push();
+            for (var i = 0; i < 3; i++) {
+                var aLed = this.data16Leds[hb * 3 + i];
+                aLed.drawInContext();
+                translate(10, 0, 0);
+            }
+            pop();
+
             rect(0, 0, 40, 5);
             translate(40, 0, 0);
+            this.randomizeLeds(this.data16Leds, 4);
         }
         // 2 more on right 
 
         translate(20, 0, 0);
-
-        this.drawLeds(2, this.offLed);
+        this.offLed.drawInContext();
+        translate(10, 0, 0);
+        this.offLed.drawInContext();
+        translate(-10, 0, 0);
         fill(this.magenta);
         rect(0, 0, 30, 5);
         translate(30, 0, 0);
-        this.drawLeds(2, this.offLed);
+        this.offLed.drawInContext();
+        translate( 10, 0,0);
+        this.offLed.drawInContext();
+        translate(-10, 0,0);
+        
         fill(this.brightRose);
         rect(0, 0, 30, 5);
 
@@ -204,9 +233,9 @@ class PDP {
 
         translate(35, 0, 0);
 
-        this.drawLeds(1, this.onLed);
+        this.onLed.drawInContext();
         translate(10, 0, 0);
-        this.drawLeds(1, this.startLed);
+        this.startLed.drawInContext();
         translate(-10, 0, 0);
         fill(this.magenta);
         rect(0, 0, 30, 5);
@@ -220,14 +249,14 @@ class PDP {
         textAlign(CENTER);
         fill(this.textColor);
         text('DATA', 0, 0);
-         // add text 
-         textSize(5);
-         translate(134,0,0);
-         text('SOURCE', 0, 0);
-         translate(31,0,0);
-         text('DESTINATION', 0, 0);
-         translate(35,0,0);
-         text('ADDRESS', 0, 0);
+        // add text 
+        textSize(5);
+        translate(134, 0, 0);
+        text('SOURCE', 0, 0);
+        translate(31, 0, 0);
+        text('DESTINATION', 0, 0);
+        translate(35, 0, 0);
+        text('ADDRESS', 0, 0);
         pop();
     }
 
@@ -341,26 +370,26 @@ class PDP {
             textAlign(LEFT, TOP);
             fill(color(170));
             stroke(this.textColor);
-            if (i==0){
-                text('LOAD',1,2);
-                text('ADDR',1,8);
-                line(1,7,11,7);
-            };
-            if (i==3){
-                text('ENABLE',1,2);
-                text(' HALT',1,8);
-                line(1,7,11,7);   
-            };
-            if (i==4){
-                text('S-INST',1,2);
-                textSize(tSize - 0.7);
-                text('S-CYCLE',1,8);
-                textSize(tSize);
-                line(1,7,11,7);   
-            };
-            if ((i==1)||(i==2)||i==5||i==6)text(labels[i], 1, 5); 
 
-            
+            if (i == 0) {
+                text('LOAD', 1, 2);
+                text('ADDR', 1, 8);
+                line(1, 7, 11, 7);
+            } else
+                if (i == 3) {
+                    text('ENABLE', 1, 2);
+                    text(' HALT', 1, 8);
+                    line(1, 7, 11, 7);
+                } else
+                    if (i == 4) {
+                        text('S-INST', 1, 2);
+                        textSize(tSize - 0.7);
+                        text('S-CYCLE', 1, 8);
+                        textSize(tSize);
+                        line(1, 7, 11, 7);
+                    } else
+                        //if ((i==1)||(i==2)||i==5||i==6)
+                        text(labels[i], 1, 5);
 
             // switches under instruction . All up but 5th
 
@@ -387,7 +416,7 @@ class PDP {
         pop();
     }
 
-// faire un drawLabelBox avec 1 ou 2 lignes selon 
+    // faire un drawLabelBox avec 1 ou 2 lignes selon 
 
 
     //----------- draw a swith in down position 
@@ -499,41 +528,32 @@ class PDP {
         this.leds.push(new SimpleLED(5, 355, 100, 80));
         this.leds.push(new SimpleLED(5, 350, 100, 60));
         this.leds.push(new SimpleLED(5, 350, 70, 70));
-        this.leds.push(new SimpleLED(5, 10, 70, 60));
         this.leds.push(new SimpleLED(5, 340, 70, 40));
         this.leds.push(new SimpleLED(5, 0, 50, 40));
-        this.leds.push(new SimpleLED(5, 10, 70, 40));
         this.leds.push(new SimpleLED(5, 340, 70, 20));
         this.onLed = new SimpleLED(5, 0, 100, 100);
         this.offLed = new SimpleLED(5, 350, 70, 50);
+        this.startLed = new SimpleLED(5,360,80,60);
+        // fill some leds bar
+        for (var i = 0; i < 18; i++) {
+            this.addr18Leds[i] = random(this.leds);
+        }
+        for (var i = 0; i < 16; i++) {
+            this.data16Leds[i] = random(this.leds);
+        }
     }
 
 
     /*
-     draw n leds. 
-     if someLeds is not specified, take randomly a led in leds array
+     to simulate slower changes
     */
-
-    drawLeds(nb, someLed) {
-        var aLed = someLed;
-        var randomChoice = (typeof (aLed) == 'undefined');
-        push();
-        for (var led = 0; led < nb; led++) {
-            stroke(70);
-            noFill();
-            strokeWeight(1);
-            push();
-            translate(5, 5);
-            rect(0, 0, 10, 20);
-            translate(5, 10, 0);
-            if (randomChoice) {
-                aLed = random(this.leds);
+    randomizeLeds(someArray, byFrames = 6) {
+        if (frameCount % byFrames == 0) {
+            var max = floor(random(someArray.length));
+            for (var i = 0;i<=max;i++) {
+                someArray[i] = random(this.leds);
             }
-            aLed.draw();
-            pop();
-            translate(10, 0, 0);
         }
-        pop();
     }
 
 
@@ -616,9 +636,23 @@ class SimpleLED {
         colorMode(HSB);
         var c = color(this.hue, this.saturation, this.brightness);
         fill(c);
-        stroke(c);
+        noStroke();
         circle(0, 0, this.size);
         pop();
+    }
+
+    // with rectangle 
+    drawInContext(){
+        push();
+        stroke(70);
+        noFill();
+        strokeWeight(1);
+        translate(5, 5);
+        rect(0, 0, 10, 20);
+        translate(5, 10, 0);
+        this.draw();
+        translate(10, 0, 0);
+    pop();
     }
 }
 

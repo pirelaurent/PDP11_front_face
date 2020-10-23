@@ -14,13 +14,13 @@ To test directly (without web server) you can comment the first line of PDP11 co
 ```javascript
         // comment this line if no web server to deliver font 
         this.helvetica = loadFont('./assets/AG_Helvetica_Bold.ttf');
-```    
+```   
 but you will not see any label 
 # size 
 The PDP11 panel is designed in a 440x180 pixels.    
 The whole is scalable without changing these sizes (as some positions are absolute in code).   
 To obtain a smaller or larger panel use the p5 *scale* instruction.   
-The following adjust PDP11 to the current width canvas :   
+The following adjust PDP11 to the current width canvas and locate the PDP in lower part of canvas:   
 ```javascript
 function draw() {
     background(0);
@@ -36,15 +36,9 @@ function draw() {
 ## Leds
 I use HSB colors, more convenient to draw leds with variations.    
 A pool of leds is set up as a collection of *SimpleLed* objects.   
-When leds'bars are drawn, a random choice is done. This simulates changing lights. 
-To test some javascript code, the function to draw leds take two parameters :   
- - a number of leds to be drawn 
- - either a named led or *nothing* to leave a random choice in preset leds'array.   
-```javascript
-     drawLeds(nb, someLed) {
-        var aLed = someLed;
-        var randomChoice = (typeof (aLed) == 'undefined');
-```
+The two bar of leds , address & data, are radomly filled in.     
+A *randomizeLeds* method change them with a tempo based on framecount.   
+
 ## 3D 
 Quite all the drawings are done with z = 0 .   
 ( Due to standard camera position in WEBGL, some minor adjustments where made to draw the 'pdp' acronym. To be sure to have lines over circles, some z pixels are added to some lines. )    
