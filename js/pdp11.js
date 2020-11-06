@@ -7,11 +7,12 @@
 
 class PDP {
     constructor() {
-        // comment this line if no web server to deliver font 
-        this.helvetica = loadFont('./assets/AG_Helvetica_Bold.ttf');
-        // id of the machine 
+    // comment this line if no web server to deliver font
+       this.helvetica = loadFont('./assets/AG_Helvetica_Bold.ttf');
+    // id of the machine 
         this.name = "digital";
         this.serialNb = "11";
+        this.pdpLogo = "pdp";
         // global height and width . 
         this.width = 440;
         this.height = 180;
@@ -23,27 +24,34 @@ class PDP {
         this.magenta = color('rgb(110,35,76)');
         this.traitColor = color('grey');
         this.textColor = color(150);
+        this.pdpName = color(160);
         this.addr18Leds = [];
         this.data16Leds = [];
         this.createLeds();
+        this.modeWebgl = false; // ie 2D
 
     }
 
     draw() {
+        if (_renderer.drawingContext instanceof WebGLRenderingContext) this.modeWebgl = true;
         fill(this.background);
         stroke(50);
-        // set a 3D box 
-
         push();
         translate(this.width / 2, this.height / 2, -this.pdp_d / 2);
-        box(this.width, this.height, this.pdp_d);
+        if (this.modeWebgl) box(this.width, this.height, this.pdp_d);
         pop();
 
-        // border 
-        rect(0, 0, this.width, this.height);
+        // background of panel   
+        noStroke();
+        rect(0, 0, this.width, this.height-1);
+        this.drawBolts();
+        noFill();
+        stroke(50);
+        rect(14,4,this.width -28, this.height -14);
+
 
         // text font and default if not loaded
-        if (this.helvetica) textFont(this.helvetica);
+        if (this.helvetica) textFont(this.helvetica) ; else textFont('someDefault');
         this.title_bar();
         this.adress_bar();
         this.dataBar();
@@ -59,12 +67,12 @@ class PDP {
         stroke(this.traitColor);
         strokeWeight(2);
         fill(this.magenta);
-        translate(20, 9, 0);
+        translate(20, 9);
         rect(0, 0, 400, 21);
         this.machineName();
         stroke(this.traitColor);
         fill(this.brightRose);
-        rect(0, 20, 400, 10);
+        rect(0, 20, 400, 9);
         pop();
     }
 
@@ -74,39 +82,116 @@ class PDP {
         textSize(16);
         textStyle(BOLD);
         textAlign(CENTER, CENTER);
-
-        translate(20, 0, 0);
+        translate(20, 0);
         for (var i = 0; i < this.name.length; i++) {
             var c = this.name.charAt(i);
             fill(this.textColor);
+            noStroke();
             text(c, 8, 9);
             noFill();
+            stroke(this.traitColor);
             rect(0, 0, 15, 20);
-            translate(15, 0, 0);
+            translate(15, 0);
         }
-        translate(10, 0, 0);
+        translate(10, 0);
         // pdp special letters
-        push();
-        translate(12, 9, 0);
-        scale(0.18);
         this.drawPDPLetters();
         pop();
-        //
-        translate(40, 0, 0);
+    }
+    /*
+          PDP letters are made of concentric circles 
+          with symetric bars for p and d 
+          Default is here at 60 pixels per letter. 
+          Scale used to put it on bar
+      */
+
+    drawPDPLetters() {
+        push();
+        translate(12, 9);
+        if (this.pdpLogo == 'pdp') {
+            push();
+            strokeWeight(2);
+            if (this.modeWebgl) strokeWeight(0.8);
+            scale(0.18);
+            this.drawP();
+            translate(50, 0);
+            this.drawD();
+            translate(54, 0);
+            this.drawP();
+            pop();
+            translate(28, 0);
+        }
+        else {
+            strokeWeight(1);
+            stroke('grey');
+            textAlign(LEFT);
+            if (this.modeWebgl) fill('grey'); else noFill();
+            textSize(14);
+            for (var c = 0; c < this.pdpLogo.length; c += 1) {
+                var char = this.pdpLogo.charAt(c);
+                text(char, 0, 0);
+                translate(textWidth(char) + 2, 0);
+            }
+            translate(10, 0);
+        }
+        // add serial number 
         fill(this.textColor);
         textAlign(LEFT, CENTER);
         textStyle(NORMAL);
-        textSize(14);
-        text(this.serialNb, 0, 9);
+        if (this.modeWebgl) textSize(13); else textSize(12);
+        noStroke();
+        text(this.serialNb, 0, 0);
         pop();
     }
+
+    // letter p 
+
+    drawP() {
+        push();
+        stroke(this.textColor);
+        fill(this.magenta);
+        ellipse(0, 0, 50);
+        ellipse(0, 0, 28);
+        // z coordinate in case of Webgl : rectangle must be over ellipse
+        translate(-26, -25, 4);
+        noStroke();
+        rect(0, 0, 10, 70);
+        stroke(this.textColor);
+        line(0, 0, 0, 70);
+        line(0, 0, 10, 0);
+        line(0, 70, 10, 70);
+        line(10, 70, 10, 45);
+        line(10, 0, 10, 5);
+        pop();
+    }
+    // letter d
+
+    drawD() {
+        push();
+        fill(this.magenta);
+        stroke(this.textColor);
+        ellipse(0, 0, 50);
+        ellipse(0, 0, 28);
+        translate(26, 25, 4);
+        noStroke();
+        rect(0, 0, -10, -70);
+        stroke(this.textColor);
+        line(0, 0, 0, -70);
+        line(0, -70, -10, -70);
+        line(-10, -70, -10, -45);
+        line(0, 0, -10, 0);
+        line(-10, 0, -10, -5)
+        pop();
+    }
+
+
 
     //--------------------- adress bar 
     adress_bar() {
         push();
         strokeWeight(2);
         stroke(this.traitColor);
-        translate(60, 50, 0);
+        translate(60, 50);
         for (var hb = 0; hb < 6; hb++) {
             fill(this.magenta);
             if (hb % 2 == 1) fill(this.brightRose);
@@ -115,40 +200,40 @@ class PDP {
             for (var i = 0; i < 3; i++) {
                 var aLed = this.addr18Leds[hb * 3 + i];
                 aLed.drawInContext();
-                translate(10, 0, 0);
+                translate(10, 0);
             }
             pop();
             rect(0, 0, 40, 5);
-            translate(40, 0, 0);
-            this.randomizeLeds(this.addr18Leds);
+            translate(40, 0);
+            this.randomizeLeds(this.addr18Leds, 5);
         }
 
         //2 blocks of 2 leds on right avec 2 led chacun
 
-        translate(20, 0, 0);
+        translate(20, 0);
         this.offLed.drawInContext();
-        translate(10, 0, 0);
+        translate(10, 0);
         this.onLed.drawInContext();
-        translate(-10, 0, 0);
+        translate(-10, 0);
         fill(this.magenta);
         rect(0, 0, 30, 5);
-        translate(30, 0, 0);
+        translate(30, 0);
         this.onLed.drawInContext();
-        translate(10, 0, 0);
+        translate(10, 0);
         this.addr18Leds[0].drawInContext();
-        translate(-10, 0, 0);
+        translate(-10, 0);
         fill(this.brightRose);
         rect(0, 0, 30, 5);
 
         // more on right a block fetch/exec 
 
-        translate(35, 0, 0);
+        translate(35, 0);
         random(this.leds).drawInContext();
         fill(this.magenta);
         rect(0, 0, 15, 5);
-        translate(10, 0, 0);
-        this.onLed.drawInContext();
-        translate(5, 0, 0);
+        translate(10, 0);
+        random(this.leds).drawInContext();
+        translate(5, 0);
         fill(this.brightRose);
         rect(0, 0, 15, 5);
         pop();
@@ -156,28 +241,24 @@ class PDP {
         // add a text on top of led's bar 
 
         push();
-        translate(200, 47, 0);
-        textSize(5);
+        translate(200, 47);
+        textSize(6);
         textAlign(CENTER);
         stroke(this.textColor);
         fill(this.textColor);
+        noStroke();
         text('ADDRESS REGISTER', 0, 0);
 
         // add text 
         textSize(5);
-        translate(135, 0, 0);
+        translate(135, 0);
         text('RUN', 0, 0);
-        translate(30, 0, 0);
+        translate(30, 0);
         text('BUS', 0, 0);
-        translate(27, 0, 0);
+        translate(27, 0);
         text('FETCH', 0, 0);
-        translate(18, 0, 0);
+        translate(18, 0);
         text('EXEC', 0, 0);
-
-
-
-
-
         pop();
     }
 
@@ -187,14 +268,14 @@ class PDP {
         push();
         stroke(this.traitColor);
         // one alone 
-        translate(80, 90, 0);
+        translate(80, 90);
         this.data16Leds[0].drawInContext();
         fill(this.magenta);
         rect(0, 0, 20, 5);
 
         // serie of 5 groups of 3 leds 
 
-        translate(20, 0, 0);
+        translate(20, 0);
         for (var hb = 0; hb < 5; hb++) {
             fill(this.magenta);
             if (hb % 2 == 1) fill(this.brightRose);
@@ -203,59 +284,58 @@ class PDP {
             for (var i = 0; i < 3; i++) {
                 var aLed = this.data16Leds[hb * 3 + i];
                 aLed.drawInContext();
-                translate(10, 0, 0);
+                translate(10, 0);
             }
             pop();
 
             rect(0, 0, 40, 5);
-            translate(40, 0, 0);
+            translate(40, 0);
             this.randomizeLeds(this.data16Leds, 4);
         }
         // 2 more on right 
 
-        translate(20, 0, 0);
+        translate(20, 0);
         this.offLed.drawInContext();
-        translate(10, 0, 0);
+        translate(10, 0);
         this.offLed.drawInContext();
-        translate(-10, 0, 0);
+        translate(-10, 0);
         fill(this.magenta);
         rect(0, 0, 30, 5);
-        translate(30, 0, 0);
+        translate(30, 0);
         this.offLed.drawInContext();
-        translate( 10, 0,0);
+        translate(10, 0);
         this.offLed.drawInContext();
-        translate(-10, 0,0);
-        
+        translate(-10, 0);
+
         fill(this.brightRose);
         rect(0, 0, 30, 5);
 
         // more on right 
 
-        translate(35, 0, 0);
+        translate(35, 0);
 
         this.onLed.drawInContext();
-        translate(10, 0, 0);
+        translate(10, 0);
         this.startLed.drawInContext();
-        translate(-10, 0, 0);
+        translate(-10, 0);
         fill(this.magenta);
         rect(0, 0, 30, 5);
-
-        // add data text on top of data bar
-
         pop();
+        // add data text on top of data bar
         push();
-        translate(200, 88, 0);
+        translate(200, 88);
         textSize(6);
+        noStroke();
         textAlign(CENTER);
         fill(this.textColor);
         text('DATA', 0, 0);
         // add text 
         textSize(5);
-        translate(134, 0, 0);
+        translate(134, 0);
         text('SOURCE', 0, 0);
-        translate(31, 0, 0);
+        translate(31, 0);
         text('DESTINATION', 0, 0);
-        translate(35, 0, 0);
+        translate(35, 0);
         text('ADDRESS', 0, 0);
         pop();
     }
@@ -265,7 +345,7 @@ class PDP {
     lowerBar() {
         // set origin 
         push();
-        translate(19, 130, 0);
+        translate(19, 130);
 
         // tree parts with lock 
 
@@ -280,11 +360,11 @@ class PDP {
 
         // main horizontal bar 
 
-        translate(40, 0, 0);
+        translate(40, 0);
         fill(this.brightRose);
         stroke(this.traitColor);
         rect(0, 0, 240, 4);
-        translate(0, 4, 0);
+        translate(0, 4);
         fill(this.magenta);
         rect(0, 0, 240, 9);
         noFill();
@@ -293,14 +373,17 @@ class PDP {
         // write each bit number 
 
         textSize(6);
+
         textAlign(CENTER, BOTTOM);
         for (var i = 0; i < 6; i++) {
             for (var j = 0; j < 3; j++) {
+                stroke(this.traitColor);
                 rect(0, 0, 40 / 3, 9);
+                noStroke();
                 fill(this.textColor);
                 text(17 - (i * 3 + j), 20 / 3, 8);
                 noFill();
-                translate(40 / 3, 0, 0);
+                translate(40 / 3, 0);
             }
         }
         pop();
@@ -330,19 +413,35 @@ class PDP {
         ellipse(1, -1, 3);
         pop();
     }
+    // --- for corners 
+    drawBolts(x,y){
+        stroke(50);
+        this.drawBolt(8, 8);
+        this.drawBolt(this.width - 8, 8);
+        this.drawBolt(8, this.height - 8);
+        this.drawBolt(this.width - 8, this.height - 8);
+    }
+    drawBolt(x, y) {
+        fill(0);
+        ellipse(x, y, 5);
+        fill(50);
+        ellipse(x, y, 2);
+    }
+
+
 
     //-----------------------  draw switches under bit number. all down 
 
     draw_switches_left_bar() {
         push();
-        translate(60, 145, 0);
+        translate(61, 145);
         var aColor = this.magenta;
         for (var i = 0; i < 6; i++) {
             var aColor = this.magenta;
             if (i % 2 == 0) aColor = this.brightRose;
             for (var j = 0; j < 3; j++) {
                 this.switch_down(aColor);
-                translate(240 / 18, 0, 0);
+                translate(240 / 18, 0);
             }
         }
         pop();
@@ -353,7 +452,7 @@ class PDP {
     // ADDR                  HALT      S-CYCLE 
 
     controlBar() {
-        var tSize = 4;
+        var tSize = 4.3;
         push();
         textSize(tSize);
         var labels = ['LOAD', 'EXAM', 'CONT', 'HALT', 'S-INST', 'START'];
@@ -365,15 +464,17 @@ class PDP {
             var current = this.magenta;
             if (i % 2 == 1) current = this.brightRose;
             fill(current);
+            stroke(this.traitColor);
             rect(0, 0, 45 / 3, 13);
             // text inside 
             textAlign(LEFT, TOP);
-            fill(color(170));
-            stroke(this.textColor);
+            fill(this.textColor);
+            noStroke();
 
             if (i == 0) {
                 text('LOAD', 1, 2);
                 text('ADDR', 1, 8);
+
                 line(1, 7, 11, 7);
             } else
                 if (i == 3) {
@@ -398,19 +499,21 @@ class PDP {
             if (i == 5) this.switch_half_down(current);
             else this.switch_up(current);
             pop();
-            translate(45 / 3, 0, 0);
+            translate(45 / 3, 0);
         }
 
         // last isolated control
 
-        translate(5, 0, 0);
+        translate(5, 0);
         noFill();
+        stroke(this.traitColor);
         rect(0, 0, 45 / 3, 33);
         fill(this.magenta);
         rect(0, 0, 45 / 3, 13);
         fill(this.textColor);
-        stroke(this.textColor);
+        noStroke();
         text(' DEP', 1, 5);
+
         translate(1, 14, 1);
         this.switch_up(this.magenta);
         pop();
@@ -428,14 +531,10 @@ class PDP {
         colorMode(HSB);
         fill(color1);
         noStroke();
-        beginShape(LINES);
-        vertex(0, 0);
-        vertex(10, 0);
-        vertex(10, 3);
-        vertex(0, 3);
-        endShape();
+        rect(0, 0, 10, 3);
+
         fill(color2);
-        beginShape(LINES);
+        beginShape();
         vertex(0, 3);
         vertex(10, 3);
         vertex(9, 16);
@@ -455,7 +554,7 @@ class PDP {
         noStroke();
         colorMode(HSB);
         fill(color3);
-        beginShape(LINES);
+        beginShape();
         vertex(0, 0);
         vertex(10, 0);
         vertex(10, 3);
@@ -467,7 +566,7 @@ class PDP {
         fill(color1);
         var h = 8;
         var w = 40 / 3 - 1;
-        beginShape(LINES);
+        beginShape();
         vertex(0, 0);
         vertex(w, 0);
         vertex(w, h);
@@ -476,7 +575,7 @@ class PDP {
         endShape();
         // small reflect on top 
         fill(color3);
-        beginShape(LINES);
+        beginShape();
         vertex(1, 0);
         vertex(w, 0);
         vertex(w, 2);
@@ -501,7 +600,7 @@ class PDP {
         fill(color3);
         var h = 12;
         var w = 40 / 3 - 2;
-        beginShape(LINES);
+        beginShape();
         vertex(1, 0);
         vertex(w, 0);
         vertex(w - 1, h);
@@ -512,7 +611,7 @@ class PDP {
 
         // small reflect on top 
         fill(color1);
-        beginShape(LINES);
+        beginShape();
         vertex(0, 0);
         vertex(w - 1, 0);
         vertex(w - 1, 3);
@@ -525,15 +624,11 @@ class PDP {
     */
     createLeds() {
         this.leds = [];
-        this.leds.push(new SimpleLED(5, 355, 100, 80));
-        this.leds.push(new SimpleLED(5, 350, 100, 60));
-        this.leds.push(new SimpleLED(5, 350, 70, 70));
-        this.leds.push(new SimpleLED(5, 340, 70, 40));
-        this.leds.push(new SimpleLED(5, 0, 50, 40));
-        this.leds.push(new SimpleLED(5, 340, 70, 20));
         this.onLed = new SimpleLED(5, 0, 100, 100);
-        this.offLed = new SimpleLED(5, 350, 70, 50);
-        this.startLed = new SimpleLED(5,360,80,60);
+        this.leds.push(this.onLed);
+        this.offLed = new SimpleLED(5, 0, 70, 30);
+        this.leds.push(this.offLed);
+        this.startLed = new SimpleLED(5, 360, 100, 60);
         // fill some leds bar
         for (var i = 0; i < 18; i++) {
             this.addr18Leds[i] = random(this.leds);
@@ -545,74 +640,21 @@ class PDP {
 
 
     /*
-     to simulate slower changes
+     to simulate slower changes based on frames 
+     and leaving more significant mor changing 
     */
-    randomizeLeds(someArray, byFrames = 6) {
+    randomizeLeds(someArray, byFrames = 10) {
         if (frameCount % byFrames == 0) {
             var max = floor(random(someArray.length));
-            for (var i = 0;i<=max;i++) {
+            for (var i = 0; i <= max; i++) {
                 someArray[i] = random(this.leds);
             }
         }
     }
 
 
-    /*
-        PDP letters are made of concentric circles 
-        with symetric bars for p and d 
-        Default is here at 60 pixels per letter. 
-        Scale used to put it on bar
-    */
-
-    drawPDPLetters() {
-        push();
-        noFill();
-        strokeWeight(1);
-        this.drawP();
-        translate(50, 0, 0);
-        this.drawD();
-        translate(51, 0, 0);
-        this.drawP();
-        pop();
-    }
 
 
-    // letter p 
-
-    drawP() {
-        push();
-        fill(this.magenta);
-        ellipse(0, 0, 28);
-        ellipse(0, 0, 50);
-        translate(-26, -25, 4);
-        noStroke();
-        rect(0, 0, 10, 70);
-        stroke('grey');
-        line(0, 0, 0, 70);
-        line(0, 0, 10, 0);
-        line(0, 70, 10, 70);
-        line(10, 70, 10, 45);
-        line(10, 0, 10, 5); ambientMaterial.or
-        pop();
-    }
-    // letter d
-
-    drawD() {
-        push();
-        fill(this.magenta);
-        ellipse(0, 0, 28);
-        ellipse(0, 0, 50);
-        translate(25, 25, 4);
-        noStroke();
-        rect(0, 0, -10, -70);
-        stroke('grey');
-        line(0, 0, 0, -70);
-        line(0, -70, -10, -70);
-        line(-10, -70, -10, -45);
-        line(0, 0, -10, 0);
-        line(-10, 0, -10, -5)
-        pop();
-    }
 
 
 }//class pdp 
@@ -642,17 +684,17 @@ class SimpleLED {
     }
 
     // with rectangle 
-    drawInContext(){
+    drawInContext() {
         push();
         stroke(70);
         noFill();
         strokeWeight(1);
         translate(5, 5);
         rect(0, 0, 10, 20);
-        translate(5, 10, 0);
+        translate(5, 10);
         this.draw();
-        translate(10, 0, 0);
-    pop();
+        translate(10, 0);
+        pop();
     }
 }
 
