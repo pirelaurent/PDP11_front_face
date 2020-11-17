@@ -29,6 +29,7 @@ class PDP {
         this.data16Leds = [];
         this.createLeds();
         this.modeWebgl = false; // ie 2D
+        this.bolts = false;
 
     }
 
@@ -43,11 +44,12 @@ class PDP {
 
         // background of panel   
         noStroke();
+        stroke(40);
         rect(0, 0, this.width, this.height-1);
-        this.drawBolts();
+        if (this.bolts) this.drawBolts();
         noFill();
         stroke(50);
-        rect(14,4,this.width -28, this.height -14);
+        //rect(14,4,this.width -28, this.height -14);
 
 
         // text font and default if not loaded
